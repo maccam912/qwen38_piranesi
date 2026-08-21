@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Piranesi</title>
+  <style>
+    :root { --ink: #2b2a26; --paper: rgba(244, 240, 232, 0.86); }
+    * { margin: 0; box-sizing: border-box; }
+    html, body { width: 100%; height: 100%; overflow: hidden; background: #dfe3e6; }
+    body { font-family: Georgia, "Times New Roman", serif; color: var(--ink); }
+    #app { position: fixed; inset: 0; }
+    canvas { display: block; }
+
+    #hud { position: fixed; inset: 0; pointer-events: none; z-index: 10; }
+    .hud-box {
+      position: absolute; background: var(--paper); border: 1px solid #8b8578;
+      padding: 6px 14px; border-radius: 2px; letter-spacing: 0.08em;
+      text-transform: uppercase; font-size: 13px;
+    }
+    #hud-hall { top: 18px; left: 18px; font-size: 15px; }
+    #hud-eggs { top: 18px; right: 18px; }
+    #hud-seed { bottom: 18px; right: 18px; cursor: pointer; pointer-events: auto; font-size: 12px; }
+    #hud-hint { bottom: 18px; left: 18px; font-size: 12px; opacity: 0.75; }
+
+    #toast {
+      position: absolute; top: 64px; left: 50%; transform: translateX(-50%);
+      background: var(--paper); border: 1px solid #8b8578; padding: 8px 22px;
+      border-radius: 2px; opacity: 0; transition: opacity 0.4s; letter-spacing: 0.1em;
+      text-transform: uppercase; font-size: 13px;
+    }
+    #toast.show { opacity: 1; }
+
+    .overlay {
+      position: fixed; inset: 0; z-index: 20; display: flex; flex-direction: column;
+      align-items: center; justify-content: center; gap: 18px;
+      background: rgba(20, 22, 24, 0.55); color: #f2eee6; text-align: center;
+      backdrop-filter: blur(3px);
+    }
+    .overlay h1 { font-size: 44px; font-weight: normal; letter-spacing: 0.35em; text-transform: uppercase; }
+    .overlay h2 { font-size: 26px; font-weight: normal; letter-spacing: 0.2em; text-transform: uppercase; }
+    .overlay p { max-width: 560px; line-height: 1.7; font-size: 15px; opacity: 0.92; }
+    .overlay button {
+      pointer-events: auto; font-family: inherit; font-size: 14px; letter-spacing: 0.2em;
+      text-transform: uppercase; padding: 10px 34px; cursor: pointer;
+      background: transparent; color: #f2eee6; border: 1px solid #f2eee6;
+    }
+    .overlay button:hover { background: #f2eee6; color: #1c1e20; }
+    .overlay .keys { font-size: 13px; opacity: 0.7; letter-spacing: 0.12em; }
+    .hidden { display: none !important; }
+
+    #vignette {
+      position: fixed; inset: 0; z-index: 5; pointer-events: none;
+      background: radial-gradient(ellipse at center, transparent 52%, rgba(20, 18, 14, 0.38) 100%);
+    }
+  </style>
+</head>
+<body>
+  <div id="app"></div>
+  <div id="vignette"></div>
+
+  <div id="hud" class="hidden">
+    <div id="hud-hall" class="hud-box">Hall 1</div>
+    <div id="hud-eggs" class="hud-box">Gull eggs 0 / 40</div>
+    <div id="hud-seed" class="hud-box" title="click to copy link"></div>
+    <div id="hud-hint" class="hud-box">WASD move &middot; mouse look &middot; collect every gull egg</div>
+    <div id="toast"></div>
+  </div>
+
+  <div id="menu-start" class="overlay">
+    <h1>Piranesi</h1>
+    <p>
+      A house of white halls and colonnades, larger than any cathedral, with no doors to the
+      outside. The tides move through its lowest corridors; gulls live in the rafters of its
+      rooms. Somewhere in the house, forty of their eggs have been hidden — across every floor,
+      up and down staircases that never seem to end.
+    </p>
+    <p>Find all forty gull eggs.</p>
+    <button id="btn-start">Enter the House</button>
+    <div class="keys">WASD — walk &nbsp;&middot;&nbsp; mouse — look &nbsp;&middot;&nbsp; shift — stride</div>
+    <div class="keys" id="menu-seed"></div>
+  </div>
+
+  <div id="menu-pause" class="overlay hidden">
+    <h2>Paused</h2>
+    <p id="pause-stats"></p>
+    <button id="btn-resume">Resume</button>
+    <button id="btn-newhouse">A new house (random seed)</button>
+  </div>
+
+  <div id="menu-win" class="overlay hidden">
+    <h2>You have seen the whole of the House</h2>
+    <p id="win-stats"></p>
+    <button id="btn-newhouse2">Enter a new house</button>
+  </div>
+
+  <script type="module" src="/src/app.ts"></script>
+</body>
+</html>
