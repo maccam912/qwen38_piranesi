@@ -54,7 +54,7 @@ try {
   browser = await puppeteer.launch({
     executablePath: CHROME,
     headless: "new",
-    args: ["--no-sandbox", "--use-gl=swiftshader", "--window-size=1280,800"],
+    args: ["--no-sandbox", "--use-gl=swiftshader", "--use-angle=swiftshader", "--enable-unsafe-swiftshader", "--window-size=1280,800"],
     defaultViewport: { width: 1280, height: 800 },
   });
   const page = await browser.newPage();
@@ -84,13 +84,19 @@ try {
     const run = f0.stairsUp.find((r) => r.x >= 0 && r.z >= 0);
     if (!run) return { error: "no stair run on floor 0" };
     const DX = [1, 0, -1, 0], DZ = [0, 1, 0, -1];
-    // approach cell: a FLOOR neighbour of the base cell (walkable, not a stair)
+    // approach cell: the open cell BEHIND the base (base − dir), i.e. standing
+    // at the bottom of the run facing straight up it. The generator guarantees
+    // ≥1 FLOOR neighbour of s0; prefer the one on the run axis.
     const dirs = [0, 1, 2, 3];
-    const approach = dirs
-      .map((d) => ({ x: run.x + DX[d], z: run.z + DZ[d] }))
-      .find((c) => house.cell(0, c.x, c.z) === 1);
+    const behind = { x: run.x - DX[run.dir], z: run.z - DZ[run.dir] };
+    const approach =
+      house.cell(0, behind.x, behind.z) === 1
+        ? behind
+        : dirs
+            .map((d) => ({ x: run.x + DX[d], z: run.z + DZ[d] }))
+            .find((c) => house.cell(0, c.x, c.z) === 1);
     if (!approach) return { error: "stair base has no FLOOR approach (invariant violated)" };
-    const cx = (approach.x - 40) * 2, cz = (approach.z - 40) * 2;
+    const cx = (approach.x - 40) * 2 + 1, cz = (approach.z - 40) * 2 + 1; // cell centre
     const dx = DX[run.dir], dz = DZ[run.dir];
     player.x = cx; player.y = 0; player.z = cz;
     player.onStair = null; player.floorIndex = 0;
